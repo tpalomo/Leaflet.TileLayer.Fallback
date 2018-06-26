@@ -1,7 +1,11 @@
 L.TileLayer.Fallback = L.TileLayer.extend({
 
 	options: {
-		minNativeZoom: 0
+	    minNativeZoom: 0,
+	    minWorldZoom: 0,    // Highest level world view
+	    maxWorldZoom: 3,     // Deepest layer world view
+	    minAreaZoom: 7,     // Minimum zoom for area
+	    maxAreaZoom: 22,     // Maximum zoom for area
 	},
 
 	initialize: function (urlTemplate, options) {
@@ -35,6 +39,14 @@ L.TileLayer.Fallback = L.TileLayer.extend({
 		    tileSize = layer.getTileSize(),
 		    style = tile.style,
 		    newUrl, top, left;
+		
+		var worldView = (currentCoords.z >= minWorldZoom && currentCoords.z <= maxWorldZoom);
+	        var areaView = (currentCoords.z >= minAreaZoom && currentCoords.z <= maxAreaZoom);
+
+	    	// Retrieve tiles for world view or area view
+	    	if( worldView || areaView ){
+		    return this._originalTileOnError(done, tile, e);
+		} 
 
 		// If no lower zoom tiles are available, fallback to errorTile.
 		if (fallbackZoom < layer.options.minNativeZoom) {
